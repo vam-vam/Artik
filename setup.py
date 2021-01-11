@@ -17,6 +17,6 @@ setup(
     author_email="",
     packages=find_packages(),
     python_requires=">=3.6.*",
-    license='MIT',
+    license='GPLv2',
     platforms='Raspberry Pi',
 )

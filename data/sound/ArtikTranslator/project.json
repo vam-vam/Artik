@@ -1,0 +1,460 @@
+{
+	"objName": "Stage",
+	"variables": [{
+			"name": "say",
+			"value": 5,
+			"isPersistent": false
+		},
+		{
+			"name": "letterno",
+			"value": 5,
+			"isPersistent": false
+		},
+		{
+			"name": "a",
+			"value": "k",
+			"isPersistent": false
+		}],
+	"lists": [{
+			"listName": "translator",
+			"contents": ["a",
+				"b",
+				"c",
+				"ç",
+				"d",
+				"e",
+				"f",
+				"g",
+				"ğ",
+				"h",
+				"i",
+				"j",
+				"k",
+				"l",
+				"m",
+				"n",
+				"o",
+				"ö",
+				"p",
+				"q",
+				"r",
+				"s",
+				"ş",
+				"t",
+				"u",
+				"ü",
+				"v",
+				"w",
+				"x",
+				"y",
+				"z"],
+			"isPersistent": false,
+			"x": 376,
+			"y": 11,
+			"width": 95,
+			"height": 337,
+			"visible": true
+		},
+		{
+			"listName": "sound",
+			"contents": [17, 13, 17, 13],
+			"isPersistent": false,
+			"x": 11,
+			"y": 39,
+			"width": 97,
+			"height": 146,
+			"visible": true
+		}],
+	"scripts": [[20,
+			20,
+			[["whenGreenFlag"],
+				["deleteLine:ofList:", "all", "sound"],
+				["doAsk", "What's your name?"],
+				["setVar:to:", "letterno", "1"],
+				["doRepeat",
+					["stringLength:", ["answer"]],
+					[["setVar:to:", "a", ["letter:of:", ["readVariable", "letterno"], ["answer"]]],
+						["setVar:to:", "say", "1"],
+						["doUntil",
+							[">", ["readVariable", "say"], "31"],
+							[["doIf",
+									["=", ["getLine:ofList:", ["readVariable", "say"], "translator"], ["readVariable", "a"]],
+									[["append:toList:", ["readVariable", "say"], "sound"], ["setVar:to:", "say", "32"]]],
+								["changeVar:by:", "say", 1]]],
+						["changeVar:by:", "letterno", 1]]],
+				["setVar:to:", "say", "1"],
+				["doRepeat",
+					["lineCountOfList:", "sound"],
+					[["doPlaySoundAndWait", ["getLine:ofList:", ["readVariable", "say"], "sound"]], ["changeVar:by:", "say", 1]]]]]],
+	"sounds": [{
+			"soundName": "a",
+			"soundID": 0,
+			"md5": "df0977a56762487f9d833d35814a6716.wav",
+			"sampleCount": 16744,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "b",
+			"soundID": 1,
+			"md5": "3a85eb788b27591b3cc5ab39191d4644.wav",
+			"sampleCount": 16168,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "c",
+			"soundID": 2,
+			"md5": "63f5c3dff75658c7c9f075a8d8b1085d.wav",
+			"sampleCount": 17320,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "c1",
+			"soundID": 3,
+			"md5": "a51a7d2a3cd68553a05c56204c4381f1.wav",
+			"sampleCount": 12136,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "d",
+			"soundID": 4,
+			"md5": "da0ed691a12fd7ff368fcfee5efdaf55.wav",
+			"sampleCount": 4072,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "e",
+			"soundID": 5,
+			"md5": "09c62cc8f0ec0246d7becfe993b3aa09.wav",
+			"sampleCount": 4072,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "f",
+			"soundID": 6,
+			"md5": "887af1f36814d89498826835bee5b89c.wav",
+			"sampleCount": 4072,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "g",
+			"soundID": 7,
+			"md5": "96ee06dc6981db237f69fa1330052084.wav",
+			"sampleCount": 4072,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "g1",
+			"soundID": 8,
+			"md5": "1acd6fb39362c914e3a11860e984dbe6.wav",
+			"sampleCount": 12712,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "h",
+			"soundID": 9,
+			"md5": "f5cc128f0a0b83341ec05f471517f493.wav",
+			"sampleCount": 4648,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "i",
+			"soundID": 10,
+			"md5": "bb178208cf234847e27cadc26a08c092.wav",
+			"sampleCount": 4648,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "j",
+			"soundID": 11,
+			"md5": "af429e8a38160da5ae0c16a48c9b5898.wav",
+			"sampleCount": 4648,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "k",
+			"soundID": 12,
+			"md5": "0f69ff0f5565b54eeff8e48e12b83d95.wav",
+			"sampleCount": 5224,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "l",
+			"soundID": 13,
+			"md5": "bc45c076702b9828ad947dd5a047c79b.wav",
+			"sampleCount": 5224,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "m",
+			"soundID": 14,
+			"md5": "8e7a21999198b5a2dfc97d71432352af.wav",
+			"sampleCount": 5224,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "n",
+			"soundID": 15,
+			"md5": "aab3fa6119e1828fe37a313e8fb3ea8e.wav",
+			"sampleCount": 5224,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "o",
+			"soundID": 16,
+			"md5": "2ddb24e3780d84f4b0e1cca7df3cc263.wav",
+			"sampleCount": 4072,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "o1",
+			"soundID": 17,
+			"md5": "4f97fe8bc993ad20343fe8c3ce02e0b4.wav",
+			"sampleCount": 14440,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "p",
+			"soundID": 18,
+			"md5": "b003afd19594d32ba8e701105ab50dd9.wav",
+			"sampleCount": 5224,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "q",
+			"soundID": 19,
+			"md5": "937b627d671bd8917f4cbc9ec09631c4.wav",
+			"sampleCount": 5800,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "r",
+			"soundID": 20,
+			"md5": "99598a2dcb5b0e75eb4be9a24ad15ec0.wav",
+			"sampleCount": 5224,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "s",
+			"soundID": 21,
+			"md5": "858294260e8bf7551a1171d39e1d8b38.wav",
+			"sampleCount": 6376,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "s1",
+			"soundID": 22,
+			"md5": "14db221bee6d185188d800bcd3496d25.wav",
+			"sampleCount": 16168,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "t",
+			"soundID": 23,
+			"md5": "4403be20f51af795c4316992ab655ffd.wav",
+			"sampleCount": 6376,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "u",
+			"soundID": 24,
+			"md5": "9df78b671f4b568b41dff3ecc1cea311.wav",
+			"sampleCount": 6376,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "u1",
+			"soundID": 25,
+			"md5": "3468cb1cd826147bd8bb142511dac884.wav",
+			"sampleCount": 15016,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "v",
+			"soundID": 26,
+			"md5": "4dd346b7990f75028ad45df28992f48d.wav",
+			"sampleCount": 6376,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "w",
+			"soundID": 27,
+			"md5": "b4299f518b3aa50f05cd04ce8d2cdc5a.wav",
+			"sampleCount": 6376,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "x",
+			"soundID": 28,
+			"md5": "517361ee31a2374bc0cb49595bc6364d.wav",
+			"sampleCount": 6952,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "y",
+			"soundID": 29,
+			"md5": "912d9b0dcc69287c7d5871dcb5aaba21.wav",
+			"sampleCount": 6952,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "z",
+			"soundID": 30,
+			"md5": "5b7275df1d7e8301d385619ab4fc863c.wav",
+			"sampleCount": 6952,
+			"rate": 22050,
+			"format": "adpcm"
+		},
+		{
+			"soundName": "beat box2",
+			"soundID": 31,
+			"md5": "f0229baf0eec8302c982741852c7bb41.wav",
+			"sampleCount": 1,
+			"rate": 11025,
+			"format": ""
+		}],
+	"costumes": [{
+			"costumeName": "background1",
+			"baseLayerID": 2,
+			"baseLayerMD5": "b61b1077b0ea1931abee9dbbfa7903ff.png",
+			"bitmapResolution": 2,
+			"rotationCenterX": 480,
+			"rotationCenterY": 360
+		}],
+	"currentCostumeIndex": 0,
+	"penLayerMD5": "5c81a336fab8be57adc039a8a2b33ca9.png",
+	"penLayerID": 0,
+	"tempoBPM": 60,
+	"videoAlpha": 0.5,
+	"children": [{
+			"listName": "translator",
+			"contents": ["a",
+				"b",
+				"c",
+				"ç",
+				"d",
+				"e",
+				"f",
+				"g",
+				"ğ",
+				"h",
+				"i",
+				"j",
+				"k",
+				"l",
+				"m",
+				"n",
+				"o",
+				"ö",
+				"p",
+				"q",
+				"r",
+				"s",
+				"ş",
+				"t",
+				"u",
+				"ü",
+				"v",
+				"w",
+				"x",
+				"y",
+				"z"],
+			"isPersistent": false,
+			"x": 376,
+			"y": 11,
+			"width": 95,
+			"height": 337,
+			"visible": true
+		},
+		{
+			"target": "Stage",
+			"cmd": "answer",
+			"param": null,
+			"color": -16476964,
+			"label": "odpověď",
+			"mode": 1,
+			"sliderMin": 0,
+			"sliderMax": 100,
+			"isDiscrete": true,
+			"x": 11,
+			"y": 7,
+			"visible": true
+		},
+		{
+			"listName": "sound",
+			"contents": [17, 13, 17, 13],
+			"isPersistent": false,
+			"x": 11,
+			"y": 39,
+			"width": 97,
+			"height": 146,
+			"visible": true
+		},
+		{
+			"objName": "Sprite1",
+			"costumes": [{
+					"costumeName": "R2-D2_cookie-jar",
+					"baseLayerID": 1,
+					"baseLayerMD5": "0d03b286a7ad26f5cfeee0b340240e43.png",
+					"bitmapResolution": 2,
+					"rotationCenterX": 286,
+					"rotationCenterY": 360
+				}],
+			"currentCostumeIndex": 0,
+			"scratchX": -22.05000000000001,
+			"scratchY": 1,
+			"scale": 0.8130915113433539,
+			"direction": 90,
+			"rotationStyle": "normal",
+			"isDraggable": false,
+			"indexInLibrary": 1,
+			"visible": true,
+			"spriteInfo": {
+			}
+		}],
+	"info": {
+		"userAgent": "Mozilla\/5.0 (Windows NT 6.1; WOW64; rv:39.0) Gecko\/20100101 Firefox\/39.0",
+		"os-version": "NT",
+		"history": "2009-11-19 20:37:03\tsave\tr2d2 a\t\t\r2009-11-19 20:56:52\tsave\tr2d2 a\t\t\r2009-11-19 21:05:50\tshare\tR2D2 Trasnlator\tleylosh\t\r2009-11-19 21:09:15\tsave\tR2D2 Trasnlator\tleylosh\tleylosh\r2009-11-19 21:10:30\tsave\tR2D2 Trasnlator\tleylosh\tleylosh\r2009-11-19 21:12:31\tsave\tR2D2 Trasnlator\tleylosh\tleylosh\r2009-11-19 21:15:27\tshare\tR2D2 Trasnlator\tleylosh\tleylosh\r2009-11-19 21:25:42\tsave\tR2D2 Trasnlator\tleylosh\tleylosh\r2009-11-19 23:42:03\tshare\tR2D2 Trasnlator\tleylosh\t\r",
+		"swfVersion": "v441",
+		"scratch-version": "1.4 of 30-Jun-09",
+		"scriptCount": 1,
+		"videoOn": false,
+		"spriteCount": 1,
+		"projectID": "766189",
+		"language": "en",
+		"author": "leylosh",
+		"comment": "Type your name\rhttp:\/\/www.r2d2translator.com\/\r\rRuns faster if download. ",
+		"platform": "Win32",
+		"flashVersion": "WIN 19,0,0,185"
+	}
+}

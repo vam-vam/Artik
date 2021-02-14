@@ -527,11 +527,44 @@ class ArtikServer:
         result["speak"] = self.artik.speak(snd_file, 2)
         return result
 
+    @server_exception_wrap
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def record(self, **kwargs):
+        """Recording video to file.
+
+        Arguments:
+            eye {int} -- select id camera
+            time {int} -- time to rec
+            stop {} -- stop recording
+            stopALL {} -- stop all recording
+        Returns:
+            {dictionary} -- status
+        """
+        result = {}
+        if "eye" in kwargs:
+            try:
+                eye = int(kwargs["eye"])
+            except Exception:
+                eye = 0
+        if "time" in kwargs:
+            try:
+                time = int(kwargs["time"])
+            except Exception:
+                time = 0
+        if "stop" in kwargs:
+            time = 0
+        if "stopALL" in kwargs:
+            time = 0
+            eye = -1
+        
+        status, file = self.artik.eye_record(eye, time)
+        result["record_status"] = status
+        result["record_file"] = file
+        return result
 
 # FIXME chybi z textu prace: swivel_eye() API pro pohyb oka nahoru/dolu.
-
-
-# FIXME chybi z textu prace: record_video() API pro nahrani videa z vybrane kamery.
 
 
     @server_exception_wrap

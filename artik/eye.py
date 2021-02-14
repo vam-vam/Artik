@@ -63,7 +63,7 @@ class Eye(Camera):
     Arguments:
         source {int} -- identify the camera: -1=RaspberryPi, 0<=USB kamera(cv2)
 
-    Arguments:
+    Keyword Arguments:
         tilt_param {dict} -- servo for tilt
         pan_param {dict} -- servo for pan (left/right
         resolution {tuple} -- camera resolution

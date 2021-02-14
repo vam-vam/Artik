@@ -18,6 +18,7 @@ import uuid
 from collections import namedtuple
 
 import RPi.GPIO as GPIO
+import cv2
 
 from artik.sensors import bme280
 from artik.sensors import hcsr04
@@ -396,6 +397,30 @@ class ArtikBrain:
 
         """
         return self.eyes[eye_id][0].picture(format="jpeg")  # FIXME what is the `[0]`?
+
+    def eye_record(self, eye_id=0, rec_time=0):
+        """Return file name from the given camera, to record.
+
+        Arguments:
+            eye_id {int} -- camera ID
+            time {int} -- duration for record
+        Returns:
+            status {int} -- status recording
+            file {str} -- file name
+
+        """
+        status ='READY'
+        file = 'output.avi'
+        # presuout nahravano do eye souboru pod brain
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter(file,fourcc, 20.0, self.eyes[eye_id][0].resolution())
+        rec_time = time.time()+rec_time
+        while time.time() < rec_time:
+            out.write(self.eyes[eye_id][0].read())
+            status ='RECORD'
+        out.release()
+        return status, file
+
 
     def eye_detect(self, eye_id=0, detect=0):
         """Detect a face or defined object.

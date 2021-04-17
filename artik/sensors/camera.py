@@ -48,7 +48,6 @@ class Camera:
         return self.camera.read()
 
     def __call__(self):
-        """FIXME: why is this needed? Who calls this and why?"""
         self.read()
 
     def stop(self):

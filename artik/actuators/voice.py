@@ -396,7 +396,8 @@ class ArtikVoice:
         if os.path.isfile(sound_file):
             self.play123(sound_file)
 
-    def stop123(self):  # FIXME what does "123" mean?
+    def stop123(self):
+        """Stop playing text """
         self.voice_stop = True
         pygame.mixer.stop()
         if self.voice_tts_pid is not None and self.voice_tts_pid.pid > 0:

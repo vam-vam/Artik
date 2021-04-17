@@ -124,10 +124,10 @@ class ArtikServer:
         """Display text on Artik's display actuator.
         Arguments:
             txt {str} -- Display input a text to a display
-            os:  -- Display information from os to a display; FIXME what is this?
+            os:  -- Show information status from os to a display (using RAM, CPU, HDD)
 
         Returns:
-            {dictionary} -- FIXME
+            {dictionary} -- result
 
         """
         result = {}
@@ -153,7 +153,7 @@ class ArtikServer:
             stop: stop / pause transfomation
 
         Returns:
-            {dictionary} -- FIXME
+            {dictionary} -- result
 
         """
         result = {}
@@ -180,7 +180,7 @@ class ArtikServer:
             off:  -- switch off relay
 
         Returns:
-            {dictionary} -- FIXME
+            {dictionary} -- result
 
         """
         result = {}
@@ -200,7 +200,7 @@ class ArtikServer:
     @cherrypy.expose
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
-    def projector(self, **kwargs):
+    def project(self, **kwargs):
         """Control the LCD projector built into the robot.
 
         Arguments:
@@ -208,7 +208,7 @@ class ArtikServer:
             count {int} -- number of repetitions or focus settings
 
         Returns:
-            {dictionary} -- FIXME
+            {dictionary} -- result
 
         """
         result = {}
@@ -239,7 +239,7 @@ class ArtikServer:
             time {int} -- stop movement after this long
 
         Returns:
-            {dictionary} -- FIXME
+            {dictionary} -- result
 
         """
         result = {}
@@ -303,7 +303,7 @@ class ArtikServer:
             right {int} -- how much to move in this direction
 
         Returns:
-            {dictionary} -- FIXME
+            {dictionary} -- result
 
         """
         result = {}
@@ -338,15 +338,15 @@ class ArtikServer:
             eye {int} -- choice of id camera
             timex {int} -- movement duration for left-right movement
             timey {int} -- duration for up-down movement
-            left {int} -- how much to move to the left; FIXME units?
-            right {int} -- how much to move to the right; FIXME units?
-            up {int} -- how much to move up; FIXME units?
-            down {int} -- how much to move down; FIXME units?
+            left {int} -- how much to move to the left in seconds 
+            right {int} -- how much to move to the right in seconds 
+            up {int} -- how much to move up in seconds 
+            down {int} -- how much to move down in seconds 
             center:  -- move camera to base position
             stop:  -- stop all camera movement
 
         Returns:
-            {dictionary} -- FIXME
+            {dictionary} -- result
 
         """
         result = {}
@@ -383,18 +383,39 @@ class ArtikServer:
         return result
 
     @cherrypy.expose
+    def snapshot(self, **kwargs):
+        """Capture image from a selectated camera, or center the camera on detected face.
+
+        Argument:
+            eye {int} -- camera id: which camera to use
+
+        Returns:
+            {str} -- returns a jpeg image
+
+        """
+        eye = 0
+        result = None
+        cherrypy.response.headers["Content-Type"] = "image/jpeg"
+        if "eye" in kwargs:
+            try:
+                eye = int(kwargs["eye"])
+                result = self.artik.eye_picture(eye_id=eye)
+            except Exception:
+                eye = 0
+        return result
+
+    @cherrypy.expose
     def eye(self, **kwargs):
         """Capture image from a selectated camera, or center the camera on detected face.
-        FIXME how are these options related? why are they in the same function?
 
         Argument:
             eye {int} -- camera id: which camera to use
             picture: -- return image from the selected camera
             followme: -- track a detected face so that it stays in the middle of the selected camera
-            face_detection: -- detect face in the image from a specific camera; FIXME what does this mean?
+            face_detection: -- detect face from a specific camera
 
         Returns:
-            {str} -- returns a jpeg image; FIXME how is this relevant to followme or face_detection?
+            {str} -- returns a jpeg image for debug
 
         """
         eye = 0
@@ -411,10 +432,9 @@ class ArtikServer:
             result = self.artik.oko_nasleduj(0)
         if "face_detection" in kwargs:
             try:
-                d = int(kwargs["face_detection"])
-                result = self.artik.eye_detect(eye_id=eye, detect=d)
+                result = self.artik.eye_detect(eye_id=eye, detect=int(kwargs["face_detection"]))
             except Exception:
-                d = 0  # FIXME `result` je pak nedefinovany. A co je "d"?
+                pass
         return result
 
     @cherrypy.expose
@@ -482,10 +502,10 @@ class ArtikServer:
         """Convert text to speech.
 
         Arguments:
-            voice {int} -- choose the type of voice (0=Artik, 1=PC Man, 2=Sound); FIXME what does this mean?
+            voice {int} -- select the output voice (0=Artik, 1=PC Man, 2=Sound)
             txt {str} -- text to convert
         Returns:
-            {dictionary} -- FIXME
+            {dictionary} -- fettle
         """
         result = {}
         voice = -1
@@ -508,10 +528,9 @@ class ArtikServer:
         """Play a sound from a defined sound list.
 
         Arguments:
-            file {int} -- select sound by audio ID from the audio recording, list in program; FIXME what does this mean?
-            FIXME doesn't match BP text: should play arbitrary WAV/OGG/MP3.
+            file {int} -- select sound by audio ID from list in program (should play arbitrary WAV/OGG/MP3).
         Returns:
-            {dictionary} -- FIXME
+            {dictionary} -- result
         """
         result = {}
         snd_file = None
@@ -527,11 +546,87 @@ class ArtikServer:
         result["speak"] = self.artik.speak(snd_file, 2)
         return result
 
+    @server_exception_wrap
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def record_video(self, **kwargs):
+        """Recording video to file.
 
-# FIXME chybi z textu prace: swivel_eye() API pro pohyb oka nahoru/dolu.
+        Arguments:
+            eye {int} -- select id camera
+            time {int} -- time to rec
+            stop {} -- stop recording
+            stopALL {} -- stop all recording
+        Returns:
+            {dictionary} -- status
+        """
+        result = {}
+        if "eye" in kwargs:
+            try:
+                eye = int(kwargs["eye"])
+            except Exception:
+                eye = 0
+        if "time" in kwargs:
+            try:
+                time = int(kwargs["time"])
+            except Exception:
+                time = 0
+        if "stop" in kwargs:
+            time = 0
+        if "stopALL" in kwargs:
+            time = 0
+            eye = -1
+        
+        status, file = self.artik.eye_record(eye, time)
+        result["record_status"] = status
+        result["record_file"] = file
+        return result
 
+    @server_exception_wrap
+    @cherrypy.expose
+    @cherrypy.tools.json_in()
+    @cherrypy.tools.json_out()
+    def swivel_eye(self, **kwargs):
+        """Control the camera movement up or down.
 
-# FIXME chybi z textu prace: record_video() API pro nahrani videa z vybrane kamery.
+        Arguments:
+            eye {int} -- choice of id camera
+            timex {int} -- movement duration for left-right movement
+            timey {int} -- duration for up-down movement
+            up {int} -- how much to move up in seconds 
+            down {int} -- how much to move down in seconds 
+            center:  -- move camera to base position
+            stop:  -- stop all camera movement
+
+        Returns:
+            {dictionary} -- result
+
+        """
+        result = {}
+        eye = 0
+        x = None
+        y = None
+        timex = 0
+        timey = 1500
+        if "timey" in kwargs:
+            timey = int(kwargs["timey"])
+        if "up" in kwargs:
+            y = int(kwargs["up"])
+        elif "down" in kwargs:
+            y = int(kwargs["down"]) * -1
+        else:
+            y, timey = 0, 0
+        if "center" in kwargs:
+            y, x, timex, timey = 0, 0, 1, 1
+        if "stop" in kwargs:
+            y, x, timex, timey = 0, 0, 0, 0
+
+        if x is not None and y is not None:
+            result["result"] = self.artik.eye_move(eye, x, y, timex, timey)
+        else:
+            raise ValueError("Wrong parameters")
+        return result
 
 
     @server_exception_wrap

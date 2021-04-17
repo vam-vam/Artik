@@ -63,7 +63,7 @@ class Eye(Camera):
     Arguments:
         source {int} -- identify the camera: -1=RaspberryPi, 0<=USB kamera(cv2)
 
-    Arguments:
+    Keyword Arguments:
         tilt_param {dict} -- servo for tilt
         pan_param {dict} -- servo for pan (left/right
         resolution {tuple} -- camera resolution
@@ -121,9 +121,9 @@ class Eye(Camera):
 
         Keyword Arguments:
             tilt_radius {int} -- Tilt angle
-            tilt_speed {int} -- Tilt speed; FIXME units
+            tilt_speed {int} -- Tilt speed in seconds 
             pan_radius {int} -- Pan angle
-            pan_speed {int} -- Pan speed; FIXME units
+            pan_speed {int} -- Pan speed in seconds 
         """
         tilt_speed = int(tilt_speed)
         pan_speed = int(pan_speed)
@@ -170,8 +170,6 @@ class BrainEyeArtik:
     Allows preprocessing of identified persons, finding an object or recognizing a face.
     Depends on konfiguration file located at eye_cnfig
 
-    Arguments:
-        eye_param {Eye} -- pripojeni oka k mozku pro zpracovani obrazu; FIXME what does this mean???
     """
 
     # Load a cascade file and model for detecting faces/objects
@@ -199,7 +197,7 @@ class BrainEyeArtik:
         """Check whether a point is within axes of a rectangle.
 
         Arguments:
-            rectangle {tuple} -- (x, y, w, h), defines the area in given axis; FIXME what does this mean?
+            rectangle {tuple} -- (x, y, w, h), defines the area in given axis
             point {tuple} -- (x, y) point to test
 
         Returns:
@@ -218,15 +216,14 @@ class BrainEyeArtik:
         """Calculate the distance between centers of two rectangles.
 
         Arguments:
-            rectangle_input {tuple} -- velikost obdelnikove vysece od ktereho se bude merit; FIXME what does this mean?
+            rectangle_input {tuple} -- select input range
 
         Keyword Arguments:
-            rectangle_area {tuple} -- velikost obdelnikove vysece nebo rozliseni kamery; FIXME what?
-            inside_rectangle {bool} -- testuje je-li bod v obdelnikove vyseci; FIXME what?
+            rectangle_area {tuple} -- resolution camera
+            inside_rectangle {bool} -- defined range for testing 
 
         Returns:
-            Vraci tuple se vzdalenosti v jednotllivych osach (x,y,z) od stredu vysecu,
-            aktualne osa (z) vraci % zabrani obdelnikove vysece v (rectangle_area); FIXME nechapu, nedokazu prelozit.
+            coordinates fill, and percentage fill in the original image 
         """
         if rectangle_area is None:
             rectangle_area = (int(self.resolution[0] / 2), int(self.resolution[1] / 2))
@@ -255,14 +252,17 @@ class BrainEyeArtik:
         return data.tostring()
 
     def picture_add_rectangle(self, image, polygons, colorRGB=(255, 255, 0)):
-        """FIXME Pridej obdelnikovou vysec pro zyrazneni objektu v obrazku.
+        """Adding a rectangle to the image
 
         Arguments:
-            image {image} -- obrazek do ktereho se bude vkladat obdelnik
-            polygons {tuple} -- souradnice obdelnikove vysece (x, y, w, h)
+            image {image} -- source picture
+            polygons {tuple} -- coordinates of the rectangle 
 
         Keyword Arguments:
-            colorRGB {tuple} -- barva obdelniku pro lepsi orientaci pri vice vysecich (default: {(255, 255, 0)})
+            colorRGB {tuple} -- rectangle color (default: {(255, 255, 0)})
+        
+        Returns:
+            array - image
         """
         # Draw a rectangle around every found objects
         for (x, y, w, h) in polygons:
@@ -299,14 +299,13 @@ class BrainEyeArtik:
             image {image} -- Input image to analyze.
 
         Keyword Arguments:
-            facesave {bool} -- Pokud je detekovan, tak jestli se ma ulozit; FIXME what? save what, where?
-            diag {bool} -- Ma-li vlozit a vratit diagnosticke informace; FIXME what? vlozit kam?
+            facesave {bool} -- enable image saving 
+            diag {bool} -- enable debug
 
         Returns:
-            faces {tuple} - oblast nalezenych obliceju
-            face_ids {tuple} - vraci id detekovaneho obliceje a jmeno osoby
-            image_diag {image} - vraci masku ve stejne velikosti vstupniho obrazku,
-                        s vyseceme nalezenych obliceju.
+            faces {tuple} - faces found 
+            face_ids {tuple} - face identification according to the list 
+            image_diag {image} - debug image for diagnostics 
         """
         # Convert to grayscale
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -375,12 +374,15 @@ class BrainEyeArtik:
 
         Args:
             image (object image): Input image to analyze
-            imgsave (bool, optional): FIXME Pokud je detekovan, tak jestli se ma ulozit.
-            diag (bool, optional): FIXME Ma-li vlozit a vratit diagnosticke informace.
+            
+        Keyword Arguments:
+            facesave {bool} -- enable image saving 
+            diag {bool} -- enable debug
 
         Returns:
-            FIXME
-
+            objects {tuple} - faces found 
+            object_ids {tuple} - face identification according to the list 
+            image_diag {image} - debug image for diagnostics 
         """
         objects = []
         object_ids = []

@@ -18,6 +18,7 @@ import uuid
 from collections import namedtuple
 
 import RPi.GPIO as GPIO
+import cv2
 
 from artik.sensors import bme280
 from artik.sensors import hcsr04
@@ -40,10 +41,10 @@ from artik import eye
 logger = logging.getLogger(__name__)
 
 DistanceMeasurement = namedtuple("DistanceMeasurement", "measurement sensor_position_angle obstacle_if_closer")
-PowerVoltage = namedtuple("PowerVoltage", "voltage min_safe_voltage") # mysleno k alivie funkci a senzoru napeti
+PowerVoltage = namedtuple("PowerVoltage", "voltage default_voltage min_safe_voltage") # mysleno k alivie funkci a senzoru napeti
+EyeCamera = namedtuple("EyeCamera","eye brain_eye")
 
-
-# config for ARTIK and servos for 50Hz (1=228; 1.5=342;2=458)
+# config for ARTIK and servos for 50Hz (1ms=228; 1.5ms=342;2=458ms)
 LEGSPOSTURE = {
     "channel": 10,
     "min": 305,
@@ -60,15 +61,6 @@ LEGS_RIGHT = {
 
 LEGS_LEFT = {
     "channel": 9, "min": 228, "max": 458, "position0": 342, "scale": 4, "speed": 0.004, "radius": 0
-}
-
-HEAD = {
-    "channel": 6,
-    "min": 212,
-    "max": 465,
-    "position0": 342,
-    "scale": 5,
-    "radius": 60,
 }
 
 HEAD_STEPPER = {
@@ -138,7 +130,7 @@ class ArtikBrain:
                 self.eyes.append([eye.Eye(source=i), None])
                 self.eyes[-1][1] = eye.BrainEyeArtik(self.eyes[-1][0])
             except Exception:
-                logger.exception("Is only camer PI and %s.", i - 1)
+                logger.exception("Is only camera PI and %s usb camera/s.", i - 1)
                 break
 
         # setup GPIO
@@ -241,7 +233,7 @@ class ArtikBrain:
             voice {int} -- choice of response type
 
         Returns:
-            str -- FIXME
+            str -- response for question
 
         """
         if isinstance(voice, int):
@@ -283,8 +275,8 @@ class ArtikBrain:
         """Switch a relay on/off.
 
         Arguments:
-            relay {int} -- id relay; FIXME what does -1 mean?
-            action {int} -- desired state; FIXME what does -1 mean?
+            relay {int} -- id number relay block;
+            action {int} -- on/off switch
 
         Returns:
             {dictionary} -- return current state of selected relay
@@ -343,7 +335,7 @@ class ArtikBrain:
 
         Arguments:
             text {str} -- text to display
-            action {int} -- FIXME
+            action {int} -- show text on display, rolle text or static show text
 
         """
         self.lcd.text_thread(text=text or "", action=int(action))
@@ -352,11 +344,10 @@ class ArtikBrain:
         """Say the given text or display it on the LCD screen.
 
         Arguments:
-            action {int} -- [description]; FIXME
-            voice {int} -- [description]; FIXME
-            FIXME and where is the input text to say or display?
+            action {int} -- text what that repeat
+            voice {int} -- choice type voice, man, r2d2 or text to display
         Returns:
-            Dictionary-- [description]; FIXME
+            Dictionary-- status
         """
         result = {}
         result["speak"] = "False"
@@ -392,20 +383,45 @@ class ArtikBrain:
         Arguments:
             eye_id {int} -- camera ID
         Returns:
-            [type] -- [description] FIXME
+            [string] -- return picture in jpeg format.
 
         """
-        return self.eyes[eye_id][0].picture(format="jpeg")  # FIXME what is the `[0]`?
+        return self.eyes[eye_id][0].picture(format="jpeg")  # FIXME - name by namedtuple EyeCamera
 
-    def eye_detect(self, eye_id=0, detect=0):
-        """Detect a face or defined object.
-        FIXME why are these two in the same function?
+    def eye_record(self, eye_id=0, rec_time=0):
+        """Return file name from the given camera, to record.
 
         Arguments:
             eye_id {int} -- camera ID
-            detect {int} -- type of detection; FIXME what does this mean?
+            time {int} -- duration for record
         Returns:
-            [type] -- FIXME
+            status {int} -- status recording
+            file {str} -- file name
+
+        """
+        status ='READY'
+        file = 'output.avi'
+        # presuout nahravano do eye souboru pod brain
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        out = cv2.VideoWriter(file,fourcc, 20.0, self.eyes[eye_id][0].resolution())
+        rec_time = min(5000,abs(rec_time))   # max record 5minuts
+        rec_time = time.time()+rec_time
+        while time.time() < rec_time:
+            out.write(self.eyes[eye_id][0].read())
+            status ='RECORD'
+        out.release()
+        status ='READY'
+        return status, file
+
+
+    def eye_detect(self, eye_id=0, detect=0):
+        """Detect a face or defined object.
+
+        Arguments:
+            eye_id {int} -- camera ID
+            detect {int} -- choice type of detection a object or a face
+        Returns:
+            string -- image in format jpeg
         """
         image = self.eyes[eye_id][0].read()
         image_diag = []
@@ -432,7 +448,6 @@ class ArtikBrain:
 
     def eye_move(self, eye_id=0, leftright=0, updown=0, leftright_speed=2000, updown_speed=2000):
         """Move the eye in any direction.
-        FIXME neodpovida texty prace: oko se ma pohybovat pouze nahoru/dolu.
 
         Arguments:
             eye_id {int} -- camera ID (default: {0})
@@ -441,8 +456,6 @@ class ArtikBrain:
             leftright_speed {int} -- left/right movement speed
             updown_speed {int} -- up/down movement speed
 
-        Returns:
-            boolean -- [description] FIXME
         """
         if updown_speed != 0:
             self.eyes[eye_id][0].moveaboutrad(tilt_radius=updown, tilt_speed=updown_speed)
@@ -458,10 +471,10 @@ class ArtikBrain:
 
         Arguments:
             eye_id {int} -- camera ID
-            img_object {[type]} -- object to track
+            img_object {array} -- object to track
 
         Returns:
-            [type] -- return picture in selected format; FIXME what?? why, and what format?
+            string -- return picture in format jpeg
 
         """
         image = self.eyes[eye_id][0].read()
@@ -517,11 +530,10 @@ class ArtikBrain:
             up {int} -- fold direction
 
         Returns:
-            [type] -- [description] FIXME
+            boolean -- successfully completed 
         """
         result = False
         up = int(up)
-        up = 0  # zamezeni skladani FIXME
         result = self.legs_posture.stop()
         if up == 1:
             result = self.legs_posture.up()
@@ -535,12 +547,9 @@ class ArtikBrain:
         """Define the movement of the entire robot.
 
         Arguments:
-            left_speed_direction {int} -- speed and direction; FIXME how can both be defined in one `int`??
-            right_speed_direction {int} -- speed and direction; FIXME how can both be defined in one `int`??
+            left_speed_direction {int} -- speed, and direction determined by the sign 
+            right_speed_direction {int} -- speed, and direction determined by the sign 
             go_time {int} -- Movement duration (default: {None})
-
-        Returns:
-            [type] -- [description] FIXME
 
         """
         left_speed_direction = int(left_speed_direction)
@@ -638,7 +647,6 @@ class ArtikBrain:
                     )
                     self.jdiR.start()
                 time.sleep(0.3)
-        return True
 
     def status(self):
         """Return the robot's status: all sensors, actuators.
@@ -651,7 +659,9 @@ class ArtikBrain:
         result["LEGS_RIGHT"] = self.leg_right.state()
         result["LEGS_LEFT"] = self.leg_left.state()
         result["HEAD"] = self.head.scale()
-        result["OBSTACLE_SENSOR0"] = OBSTACLE_DISTANCES[0].measurement.distance_last
+        result["OBSTACLE_SENSORS"] = []
+        for i in OBSTACLE_DISTANCES:
+            result["OBSTACLE_SENSORS"].append(i.measurement.distance_last)
         return result
 
     def _check_can_walk(self, left_direction=None, right_direction=None):
@@ -744,10 +754,10 @@ class Head:
         """Rotate the head.
 
         Keyword Arguments:
-            direction {int}; FIXME units
-            speed {int}; FIXME units
+            direction {int}; determined by head drive type configuration 
+            speed {int}; determined by head drive type configuration 
         Returns:
-            [type] -- [description] FIXME
+            boolean -- successfully completed
         """
         result = False
         if direction != 0:
@@ -791,24 +801,23 @@ class Head:
 
     @property
     def head_max(self):
-        """Return the position of maximum rotation; FIXME what does this mean?
+        """Return the position of maximum rotation
 
         Returns:
-            [int] -- hodnota; FIXME
+            int -- upper limit
         """
         return self.head_stepper.IsMaxPosition()
 
     @property
     def head_min(self):
-        """Return the position of minimum rotation; FIXME what does this mean?
+        """Return the position of minimum rotation
 
         Returns:
-            int -- hodnota; FIXME
+            int -- lower limit
         """
         return self.head_stepper.IsMinPosition()
 
     def scale(self):
-        """FIXME"""
         return self.head_stepper.scale
 
 
@@ -1174,13 +1183,13 @@ class ArtikHwInits:
         p.start()
 
         OBSTACLE_DISTANCES.append(
-            [
+            DistanceMeasurement(
                 hcsr04.Measurement(
                     trig_pin=26, echo_pin=21, temperature=thermometer
                 ),
                 95.00,
                 10,
-            ]
+            )
         )
         p = threading.Thread(
             target=hcsr04.SensorThDistance,
@@ -1190,13 +1199,13 @@ class ArtikHwInits:
         p.start()
 
         OBSTACLE_DISTANCES.append(
-            [
+            DistanceMeasurement(
                 hcsr04.Measurement(
                     trig_pin=19, echo_pin=20, temperature=thermometer
                 ),
                 -90.00,
                 10,
-            ]
+            )
         )
         p = threading.Thread(
             target=hcsr04.SensorThDistance,
@@ -1247,7 +1256,7 @@ class ArtikHwInits:
         )
 
     def read_sensors(self):
-        """FIXME"""
+        """Read all sensors and show"""
         result = {}
         #      '''  for dist in len(OBSTACLE_DISTANCES):
         #            result['distance_'+dist] =

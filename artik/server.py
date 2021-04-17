@@ -546,23 +546,13 @@ class ArtikServer:
         result["speak"] = self.artik.speak(snd_file, 2)
         return result
 
-<<<<<<< .mine
     @server_exception_wrap
     @cherrypy.expose
     @cherrypy.tools.json_in()
     @cherrypy.tools.json_out()
     def record_video(self, **kwargs):
         """Recording video to file.
-=======
-    @server_exception_wrap
-    @cherrypy.expose
-    @cherrypy.tools.json_in()
-    @cherrypy.tools.json_out()
-    def record(self, **kwargs):
-        """Recording video to file.
->>>>>>> .theirs
 
-<<<<<<< .mine
         Arguments:
             eye {int} -- select id camera
             time {int} -- time to rec
@@ -592,41 +582,6 @@ class ArtikServer:
         result["record_status"] = status
         result["record_file"] = file
         return result
-
-
-=======
-        Arguments:
-            eye {int} -- select id camera
-            time {int} -- time to rec
-            stop {} -- stop recording
-            stopALL {} -- stop all recording
-        Returns:
-            {dictionary} -- status
-        """
-        result = {}
-        if "eye" in kwargs:
-            try:
-                eye = int(kwargs["eye"])
-            except Exception:
-                eye = 0
-        if "time" in kwargs:
-            try:
-                time = int(kwargs["time"])
-            except Exception:
-                time = 0
-        if "stop" in kwargs:
-            time = 0
-        if "stopALL" in kwargs:
-            time = 0
-            eye = -1
-        
-        status, file = self.artik.eye_record(eye, time)
-        result["record_status"] = status
-        result["record_file"] = file
-        return result
-
-# FIXME chybi z textu prace: swivel_eye() API pro pohyb oka nahoru/dolu.
->>>>>>> .theirs
 
     @server_exception_wrap
     @cherrypy.expose
@@ -635,7 +590,6 @@ class ArtikServer:
     def swivel_eye(self, **kwargs):
         """Control the camera movement up or down.
 
-<<<<<<< .mine
         Arguments:
             eye {int} -- choice of id camera
             timex {int} -- movement duration for left-right movement
@@ -648,20 +602,6 @@ class ArtikServer:
         Returns:
             {dictionary} -- result
 
-=======
-
-
-
-
-
-
-
-
-
-
-
-
->>>>>>> .theirs
         """
         result = {}
         eye = 0
